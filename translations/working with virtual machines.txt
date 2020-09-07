@@ -1,0 +1,83 @@
+#creating the server instance in my project
+	gcloud beta compute instances create mc-sever --zone=us-central1-a --machine-type=n1-standard-1 --image=debian-9-stretch-v20200902 --image-		project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-standard --boot-disk-device-name=mc-sever --create-		disk=mode=rw,size=50,type=projects/qwiklabs-gcp-04-c881eaa59677/zones/us-central1-a/diskTypes/pd-ssd,name=minecraft-disk,device-name=minecraft-	disk --	reservation-affinity=any
+
+#connecting to the server instance (use ip of the instance)
+	ssh 34.70.56.196 
+
+	yes
+
+#make directory, format and mount point
+	sudo mkdir -p /home/minecraft
+
+	sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/disk/by-id/google-minecraft-disk
+
+	sudo mount -o discard,defaults /dev/disk/by-id/google-minecraft-disk /home/minecraft
+
+#install JRE, mine craft server and initiallise
+	sudo apt-get update
+
+	sudo apt-get install -y default-jre-headless
+
+	cd /home/minecraft
+
+	sudo apt-get install wget
+
+	sudo wget https://launcher.mojang.com/v1/objects/d0d0fe2b1dc6ab4c65554cb734270872b72dadd6/server.jar
+
+	sudo java -Xmx1024M -Xms1024M -jar server.jar nogui
+
+#acccepting the EULA licence
+	sudo nano eula.txt
+
+	eula=true
+
+	Ctrl+O, ENTER    
+	Ctrl+X
+
+#create virtual terminal screen and start server
+	sudo apt-get install -y screen
+
+	sudo screen -S mcs java -Xmx1024M -Xms1024M -jar server.jar nogui
+
+	Ctrl+A, Ctrl+D
+
+#exiting from the cli
+	exit
+
+#allowing trafic
+	gcloud compute --project=qwiklabs-gcp-04-c881eaa59677 firewall-rules create minecraft-rule --direction=INGRESS --priority=1000 --network=default --action=ALLOW 	--rules=tcp:25565 --source-ranges=0.0.0.0/0 --target-tags=minecraft-server
+
+#for back up
+	export YOUR_BUCKET_NAME=translate_bucket
+
+	gsutil mb gs://$YOUR_BUCKET_NAME-minecraft-backup
+
+#back up script
+	cd /home/minecraft
+
+	sudo nano /home/minecraft/backup.sh
+
+	#!/bin/bash
+	screen -r mcs -X stuff '/save-all\n/save-off\n'
+	/usr/bin/gsutil cp -R ${BASH_SOURCE%/*}/world gs://${YOUR_BUCKET_NAME}-minecraft-backup/$(date "+%Y%m%d-%H%M%S")-world
+	screen -r mcs -X stuff '/save-on\n'
+
+	Ctrl+O, ENTER
+	Ctrl+X
+
+#making it executable
+
+	sudo chmod 755 /home/minecraft/backup.sh
+
+#back up schedule
+	sudo crontab -e
+
+	0 */4 * * * /home/minecraft/backup.sh
+
+#maintance
+	sudo screen -r -X stuff '/stop\n'
+
+	gcloud compute instances stop
+
+#adding start up and shut down scripts
+	gcloud compute instances mc-server metadata startup-script-url=https://storage.googleapis.com/cloud-training/archinfra/mcserver/startup.sh,shutdown-script-	url=https://storage.googleapis.com/cloud-training/archinfra/mcserver/shutdown.sh

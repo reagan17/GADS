@@ -1,0 +1,5 @@
+##CREATING A VM
+	1-setting a zone
+		-gcloud config set compute/zone us-central1-a
+	2-creating the vm
+		-gcloud compute instances create "translate-vm" –machine-type "n1-standard-1" –image-project "debian-cloud" –image "debain-9-stretch-v20190213" –subnet "default"
