@@ -1,10 +1,8 @@
 #creating the server instance in my project
-	gcloud beta compute instances create mc-sever --zone=us-central1-a --machine-type=n1-standard-1 --image=debian-9-stretch-v20200902 --image-		project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-standard --boot-disk-device-name=mc-sever --create-		disk=mode=rw,size=50,type=projects/qwiklabs-gcp-04-c881eaa59677/zones/us-central1-a/diskTypes/pd-ssd,name=minecraft-disk,device-name=minecraft-	disk --	reservation-affinity=any
+	gcloud beta compute instances create mc-sever --zone=us-central1-a --machine-type=n1-standard-1 --image=debian-9-stretch-v20200902 --image-		project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-standard --boot-disk-device-name=mc-sever --create-		disk=mode=rw,size=50,name=minecraft-disk,device-name=minecraft-disk 
 
 #connecting to the server instance (use ip of the instance)
-	ssh 34.70.56.196 
-
-	yes
+	gcloud compute ssh mc-server 
 
 #make directory, format and mount point
 	sudo mkdir -p /home/minecraft
