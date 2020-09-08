@@ -1,4 +1,0 @@
-gcloud compute networks create translate --subnet-mode=auto
-
-#making a subnet(Asubnet) in a given region
-gcloud compute networks subnets create Asubnet-us --network=translate --region=us-central1 --range=172.16.0.0/24
