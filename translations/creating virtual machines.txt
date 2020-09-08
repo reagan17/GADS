@@ -1,0 +1,61 @@
+#CREATING VIRTUAL MACHINES
+
+#create a utility vm
+#create a windws vm
+-allow http traffic
+-allow https traffic
+#create a custom vm
+-ssh into the custom vm
+
+#1- creating a utility vm
+	gcloude compute instances create utility-vm --zone=us-central1-c machine --machine-type=n1-standard-1 --subnet=default --image-project=debian-cloud --image=debian-9-stretch-v20200902
+#To read the logs
+	gcloud logging read --limit=10 --format=json
+
+#2-create a windows vm
+	gcloud compute instances create windows-vm --zone=europe-west2-a --machine-type=n1-standard-2 --subnet=default --tags=http,https --image=windows-server-2016-dc-core-v20200813 --image-project=windows-cloud --boot-disk-size=100GB --boot-disk-type=pd-ssd --boot-disk-device-name=windows-vm
+
+#creating the allow http traffic rule
+	gcloud compute firewall-rules create default-allow-http --direction=ingress --priority=1000 --network=default --action=ALLOW --rules=tcp:80 --source-ranges=0.0.0.0/0 --target-tags=http
+
+#creating the allow https traffic rule
+	gcloud compute firewall-rules create default-allow-https --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:443 --source-ranges=0.0.0.0/0 --target-tags=https
+
+#3-creating a custom vm
+	gcloud beta compute instances create custom-vm --zone=us-west1-b --machine-type=e2-custom-6-32768 --subnet=default --image=debian-9-stretch-v20200902 --image-project=debian-cloud
+
+#to ssh into the custom vm 
+	gcloud compute ssh custom-vm
+
+#confirm to create ssh key (pres y then enter)
+	y
+
+#enter pass phrase(or just press enter to leave it empty)
+	[enter your passphrase]
+
+#confirm pass phrase(or just press enter to leave it empty)
+	[enter your passphrase]
+
+#confirm and select the correct zone for your vm(y/n)
+	
+#re enter the passphrase
+	[enter your passphrase]
+
+#To see information about unused and used memory and swap space on your custom VM, run the following command:
+	free
+
+#To see details about the RAM installed on your VM, run the following command:
+	sudo dmidecode -t 17
+
+#To verify the number of processors, run the following command:
+	nproc
+
+#To see details about the CPUs installed on your VM, run the following command:
+	lscpu
+
+#To exit the SSH terminal, run the following command:
+	exit
+
+
+
+
